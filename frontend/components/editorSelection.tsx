@@ -8,7 +8,6 @@ export default function EditorSection({
   code,
   setCode,
   onMount,
-  preferences
 }: any) {
   return (
     <div className="h-full w-full bg-[#0d0d0d] rounded-xl overflow-hidden border border-gray-800 shadow-md">
@@ -19,6 +18,7 @@ export default function EditorSection({
         value={code}
         onChange={(val) => setCode(val || "")}
         onMount={onMount}
+        
       />
     </div>
   );

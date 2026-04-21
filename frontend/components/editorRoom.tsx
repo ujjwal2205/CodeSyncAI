@@ -16,7 +16,7 @@ export default function EditorRoom({ roomId }: { roomId: string }) {
   const [showChat, setShowChat] = useState<boolean>(true);
   const [preferences, setPreferences] = useState({
   fontSize: 14,
-  minimap: true,
+  minimap: false,
   tabSize: 2,
   wordWrap: true,
 });
@@ -24,19 +24,28 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [leftWidth, setLeftWidth] = useState<number>(50);
   const [rightWidth, setRightWidth] = useState<number>(25);
   const [isLoaded,setIsLoaded]=useState(false);
-  
+  const applySettings = (editor: any, prefs: any) => {
+  editor.updateOptions({
+    fontSize: prefs.fontSize,
+    minimap: {
+      enabled: prefs.minimap,
+      scale: 20,
+      maxColumn: 200,
+      renderCharacters: true,
+    },
+    wordWrap: prefs.wordWrap ? "on" : "off",
+    tabSize: prefs.tabSize,
+  });
+};
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
+    applySettings(editor, preferences);
   };
   useEffect(() => {
   if (!editorRef.current) return;
-
-  editorRef.current.updateOptions({
-    fontSize: preferences.fontSize,
-    minimap: { enabled: !!preferences.minimap },
-    wordWrap: preferences.wordWrap ? "on" : "off",
-    tabSize: preferences.tabSize,
-  });
+  if(!isLoaded) return;
+  applySettings(editorRef.current,preferences);
+  localStorage.setItem("preferences",JSON.stringify(preferences));
 }, [preferences]);
   const newFile = () => setCode("");
 
@@ -161,14 +170,25 @@ const [showPreferences, setShowPreferences] = useState(false);
     if(!isLoaded) return;
     localStorage.setItem("layout",JSON.stringify({leftWidth,rightWidth,showChat}));
   },[leftWidth,rightWidth,showChat]);
+  
   useEffect(()=>{
     try {
       const saved=localStorage.getItem("layout");
+      const pref=localStorage.getItem("preferences");
       if(saved){
        const parsed=JSON.parse(saved);
        setLeftWidth(parsed.leftWidth??50);
        setRightWidth(parsed.rightWidth??25);
        setShowChat(parsed.showChat??false);
+      }
+      if(pref){
+        const parsedPref=JSON.parse(pref);
+        setPreferences({
+          fontSize: parsedPref.fontSize??14,
+          minimap: parsedPref.minimap??false,
+          tabSize: parsedPref.tabSize??2,
+          wordWrap: parsedPref.wordWrap??true,
+        })
       }
     } catch (error) {
       console.log("Invalid localStorage data");
@@ -179,21 +199,18 @@ const [showPreferences, setShowPreferences] = useState(false);
   return (
     <div className="h-screen flex flex-col bg-[#0f0f0f] text-white">
       {showPreferences && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"> 
-    <div className="w-[420px] bg-[#1e1e1e] rounded-xl shadow-2xl p-6 text-white">
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-lg font-semibold">Preferences</h2>
-        <button
-          onClick={() => setShowPreferences(false)}
-          className="text-gray-400 hover:text-white text-xl"
-        >
-          ✕
-        </button>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+    <div className="w-[450px] bg-[#1e1e1e] rounded-2xl shadow-2xl p-6 text-white border border-gray-700">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold tracking-wide flex items-center gap-2">
+          ⚙️ Preferences
+        </h2>
+        
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <span>Font Size</span>
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center mb-5">
+        <span className="text-gray-300">Font Size</span>
+        <div className="flex items-center gap-3">
           <button
             onClick={() =>
               setPreferences((p) => ({
@@ -201,12 +218,14 @@ const [showPreferences, setShowPreferences] = useState(false);
                 fontSize: Math.max(10, p.fontSize - 1),
               }))
             }
-            className="px-2 py-1 bg-gray-700 rounded"
+            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
           >
-            -
+            −
           </button>
 
-          <span>{preferences.fontSize}</span>
+          <span className="w-8 text-center font-medium text-lg">
+            {preferences.fontSize}
+          </span>
 
           <button
             onClick={() =>
@@ -215,16 +234,16 @@ const [showPreferences, setShowPreferences] = useState(false);
                 fontSize: p.fontSize + 1,
               }))
             }
-            className="px-2 py-1 bg-gray-700 rounded"
+            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
           >
             +
           </button>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <span>Tab Size</span>
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center mb-5">
+        <span className="text-gray-300">Tab Size</span>
+        <div className="flex items-center gap-3">
           <button
             onClick={() =>
               setPreferences((p) => ({
@@ -232,12 +251,14 @@ const [showPreferences, setShowPreferences] = useState(false);
                 tabSize: Math.max(1, p.tabSize - 1),
               }))
             }
-            className="px-2 py-1 bg-gray-700 rounded"
+            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
           >
-            -
+            −
           </button>
 
-          <span>{preferences.tabSize}</span>
+          <span className="w-8 text-center font-medium text-lg">
+            {preferences.tabSize}
+          </span>
 
           <button
             onClick={() =>
@@ -246,15 +267,15 @@ const [showPreferences, setShowPreferences] = useState(false);
                 tabSize: p.tabSize + 1,
               }))
             }
-            className="px-2 py-1 bg-gray-700 rounded"
+            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
           >
             +
           </button>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
-        <span>Minimap</span>
+      <div className="flex justify-between items-center mb-5">
+        <span className="text-gray-300">Minimap</span>
         <button
           onClick={() =>
             setPreferences((p) => ({
@@ -262,16 +283,20 @@ const [showPreferences, setShowPreferences] = useState(false);
               minimap: !p.minimap,
             }))
           }
-          className={`px-3 py-1 rounded ${
-            preferences.minimap ? "bg-green-600" : "bg-gray-700"
+          className={`w-14 h-7 flex items-center rounded-full p-1 transition ${
+            preferences.minimap ? "bg-green-500" : "bg-gray-600"
           }`}
         >
-          {preferences.minimap ? "ON" : "OFF"}
+          <div
+            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition ${
+              preferences.minimap ? "translate-x-7" : "translate-x-0"
+            }`}
+          />
         </button>
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <span>Word Wrap</span>
+        <span className="text-gray-300">Word Wrap</span>
         <button
           onClick={() =>
             setPreferences((p) => ({
@@ -279,24 +304,28 @@ const [showPreferences, setShowPreferences] = useState(false);
               wordWrap: !p.wordWrap,
             }))
           }
-          className={`px-3 py-1 rounded ${
-            preferences.wordWrap ? "bg-green-600" : "bg-gray-700"
+          className={`w-14 h-7 flex items-center rounded-full p-1 transition ${
+            preferences.wordWrap ? "bg-green-500" : "bg-gray-600"
           }`}
         >
-          {preferences.wordWrap ? "ON" : "OFF"}
+          <div
+            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition ${
+              preferences.wordWrap ? "translate-x-7" : "translate-x-0"
+            }`}
+          />
         </button>
       </div>
 
       <button
         onClick={() => setShowPreferences(false)}
-        className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg"
+        className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-xl font-medium transition"
       >
         Close
       </button>
-
     </div>
   </div>
 )}
+
       <TopNavbar
         roomId={roomId}
         newFile={newFile}
@@ -327,15 +356,15 @@ const [showPreferences, setShowPreferences] = useState(false);
 
         <div
           style={{ width: `${leftWidth}%` }}
-        >
+        > 
+        {isLoaded &&(
           <EditorSection
             language={language}
             theme={theme}
             code={code}
             setCode={setCode}
             onMount={handleEditorDidMount}
-            preferennces={preferences}
-          />
+          />)}
         </div>
 
         {/*Divider 1 */}
