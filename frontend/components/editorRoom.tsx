@@ -24,6 +24,7 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [leftWidth, setLeftWidth] = useState<number>(50);
   const [rightWidth, setRightWidth] = useState<number>(25);
   const [isLoaded,setIsLoaded]=useState(false);
+  const [output,setOutput]=useState("");
   const applySettings = (editor: any, prefs: any) => {
   editor.updateOptions({
     fontSize: prefs.fontSize,
@@ -36,6 +37,61 @@ const [showPreferences, setShowPreferences] = useState(false);
     wordWrap: prefs.wordWrap ? "on" : "off",
     tabSize: prefs.tabSize,
   });
+};
+  const languageMap:any={
+    javascript:63,
+    python:71,
+    java:62,
+    cpp:54
+  };
+  const runCode = async () => {
+  try {
+    const encodeBase64 = (str: string) => {
+  return btoa(
+    String.fromCharCode(...new TextEncoder().encode(str))
+  );
+};
+     const decodeBase64 = (str: string | null) => {
+  if (!str) return "";
+
+  const bytes = Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+};
+
+    const encodedCode = encodeBase64(code);
+
+    const response = await fetch(
+      "https://ce.judge0.com/submissions?base64_encoded=true&wait=true",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          source_code: encodedCode,
+          language_id: languageMap[language],
+          stdin: "",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      setOutput("API Error: " + response.status);
+      return;
+    }
+
+    const data = await response.json();
+    const stdout = decodeBase64(data.stdout);
+    const stderr = decodeBase64(data.stderr);
+    const compileOutput = decodeBase64(data.compile_output);
+
+   
+
+    setOutput(compileOutput || stderr || stdout || "No output");
+  } catch (error: any) {
+    console.error(error);
+    setOutput("Something went wrong while running code");
+  }
 };
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
@@ -340,6 +396,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         setPreferences={setPreferences}
         showPreferences={showPreferences}
         setShowPreferences={setShowPreferences}
+        runCode={runCode}
       />
 
       <ControlsBar
@@ -379,7 +436,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         <div
           style={{ width: `${100 - leftWidth - rightWidth}%` }}
         >
-          <RightPanel />
+          <RightPanel output={output}/>
         </div>
 
         {/*Divider 2 */}

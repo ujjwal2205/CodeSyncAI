@@ -1,4 +1,4 @@
-export default function RightPanel() {
+export default function RightPanel({output}:any) {
   return (
     <div className="h-full w-full border-l border-gray-800 flex flex-col bg-[#0b0b0b]">
 
@@ -10,8 +10,8 @@ export default function RightPanel() {
       </div>
 
       <div className="flex-1 p-3">
-        <div className="h-full bg-black rounded-lg p-3 text-green-400 text-sm font-mono overflow-auto border border-gray-900">
-          <p className="text-gray-500">Run your code to see output...</p>
+        <div className="h-full bg-black rounded-lg p-3 text-green-400 text-sm font-mono overflow-auto border border-gray-900 whitespace-pre-wrap">
+          <p className="text-gray-500">{output || "Run your code to see output..."}</p>
         </div>
       </div>
     </div>
