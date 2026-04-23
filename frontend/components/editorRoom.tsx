@@ -14,6 +14,7 @@ export default function EditorRoom({ roomId }: { roomId: string }) {
   const [theme, setTheme] = useState<string>("vs-dark");
   const [code, setCode] = useState<string>("// Start coding...");
   const [showChat, setShowChat] = useState<boolean>(true);
+  const [customInput, setCustomInput] = useState<string>("");
   const [preferences, setPreferences] = useState({
   fontSize: 14,
   minimap: false,
@@ -70,7 +71,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         body: JSON.stringify({
           source_code: encodedCode,
           language_id: languageMap[language],
-          stdin: "",
+          stdin: encodeBase64(customInput),
         }),
       }
     );
@@ -404,6 +405,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         setLanguage={setLanguage}
         theme={theme}
         setTheme={setTheme}
+        setCode={setCode}
       />
 
       <div
@@ -436,7 +438,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         <div
           style={{ width: `${100 - leftWidth - rightWidth}%` }}
         >
-          <RightPanel output={output}/>
+          <RightPanel output={output} customInput={customInput} setCustomInput={setCustomInput} />
         </div>
 
         {/*Divider 2 */}

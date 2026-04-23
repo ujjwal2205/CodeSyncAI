@@ -6,6 +6,7 @@ export default function ControlsBar({
   setLanguage,
   theme,
   setTheme,
+  setCode
 }: any) {
   const monaco = useMonaco();
 
@@ -41,7 +42,7 @@ export default function ControlsBar({
 
         <select
           value={language}
-          onChange={(e) => setLanguage(e.target.value)}
+          onChange={(e) => {setLanguage(e.target.value);setCode("// Start coding...")}}
           className="bg-[#1e1e1e] text-white px-3 py-1.5 rounded-md text-sm border border-gray-700 hover:border-gray-500 transition outline-none"
         >
           <option value="javascript">JavaScript</option>
