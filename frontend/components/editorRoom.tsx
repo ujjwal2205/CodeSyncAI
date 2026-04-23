@@ -9,7 +9,7 @@ import ChatPanel from "./chatPanel";
 export default function EditorRoom({ roomId }: { roomId: string }) {
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const [isRunning, setIsRunning] = useState(false);
   const [language, setLanguage] = useState<string>("javascript");
   const [theme, setTheme] = useState<string>("vs-dark");
   const [code, setCode] = useState<string>("// Start coding...");
@@ -46,6 +46,9 @@ const [showPreferences, setShowPreferences] = useState(false);
     cpp:54
   };
   const runCode = async () => {
+    if(isRunning) return;
+    setIsRunning(true);
+    setOutput("Running...");
   try {
     const encodeBase64 = (str: string) => {
   return btoa(
@@ -92,6 +95,8 @@ const [showPreferences, setShowPreferences] = useState(false);
   } catch (error: any) {
     console.error(error);
     setOutput("Something went wrong while running code");
+  }finally{
+    setIsRunning(false);
   }
 };
   const handleEditorDidMount = (editor: any) => {
@@ -398,6 +403,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         showPreferences={showPreferences}
         setShowPreferences={setShowPreferences}
         runCode={runCode}
+        isRunning={isRunning}
       />
 
       <ControlsBar

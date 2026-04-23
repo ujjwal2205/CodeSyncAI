@@ -14,7 +14,7 @@ export default function TopNavbar({
   saveAsFile,
   setShowPreferences,
   runCode,
-  code
+  isRunning
 }: any) {
   const [showUsers, setShowUsers] = useState(false);
   
@@ -93,8 +93,11 @@ export default function TopNavbar({
         </div>
 
         
-        <button className="px-4 py-1.5 bg-green-600 hover:bg-green-500 rounded-md text-sm font-medium transition shadow-md shadow-green-900/30" 
+        <button className={`px-4 py-2 rounded text-white ${
+    isRunning ? "bg-gray-600 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+  }`}
         onClick={runCode}
+        disabled={isRunning}
          >
           ▶ Run
         </button>
