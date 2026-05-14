@@ -59,7 +59,7 @@ export default function TopNavbar({
               showChat
                 ? "bg-blue-600 border-blue-500 text-white hover:bg-blue-500 shadow-md shadow-blue-900/30"
                 : "bg-[#111] border-gray-700 text-gray-400 hover:text-white hover:bg-gray-800"
-            }
+            } cursor-pointer
           `}
         >
           {showChat ? "💬 Chat" : "🗨️ Chat"}
@@ -69,7 +69,7 @@ export default function TopNavbar({
         <div className="relative">
           <button
             onClick={() => setShowUsers(!showUsers)}
-            className="px-3 py-1.5 bg-[#111] border border-gray-700 hover:bg-gray-800 rounded-md text-sm transition"
+            className="px-3 py-1.5 bg-[#111] border border-gray-700 hover:bg-gray-800 rounded-md text-sm transition cursor-pointer"
           >
             👥 Users
           </button>
@@ -93,7 +93,7 @@ export default function TopNavbar({
         </div>
 
         
-        <button className={`px-4 py-2 rounded text-white ${
+        <button className={`px-4 py-2 rounded text-white cursor-pointer ${
     isRunning ? "bg-gray-600 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
   }`}
         onClick={runCode}
