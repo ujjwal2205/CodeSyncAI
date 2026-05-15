@@ -6,14 +6,19 @@ import BeforeAfter from "@/components/beforeAfter";
 import LiveCollaboration from "@/components/liveCollaboration";
 import Footer from "@/components/footer";
 import Login from "@/components/login";
-
+import Signup from "@/components/signUp";
 export default function Home(){
-  const {openLogin} = useStore();
+  const {openLogin,openSignup} = useStore();
   return(
     <div className="bg-black min-h-screen text-white">
       {openLogin && (
          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <Login />
+    </div>
+      )}
+      {openSignup && (
+         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <Signup />
     </div>
       )}
       <Navbar/>

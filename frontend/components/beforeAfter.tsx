@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { X, CheckCircle } from "lucide-react";
-
+import { useStore } from "@/context/StoreContext";
 export default function BeforeAfter() {
+  const { setOpenLogin,isLoggedIn } = useStore();
   return (
     <section className="relative w-full -my-[70px] py-28 px-6 bg-black text-white overflow-hidden">
       
@@ -78,9 +79,14 @@ export default function BeforeAfter() {
           transition={{ duration: 0.7 }}
           className="text-center mt-20"
         >
+          {isLoggedIn ? (
           <button className="px-10 py-4 rounded-2xl bg-white text-black font-medium hover:bg-neutral-200 transition duration-200 shadow-lg cursor-pointer">
-            Launch Live Room →
-          </button>
+              Launch Live Room →
+            </button>) : (
+            <button className="px-10 py-4 rounded-2xl bg-white text-black font-medium hover:bg-neutral-200 transition duration-200 shadow-lg cursor-pointer" onClick={() => setOpenLogin(true)}>
+              Launch Live Room →
+            </button>
+          )}
         </motion.div>
 
       </div>

@@ -1,4 +1,6 @@
+import { useStore } from "@/context/StoreContext";
 export default function Header() {
+  const {isLoggedIn,setOpenLogin} = useStore();
   return (
     <section className="relative min-h-170 w-full bg-black text-white flex items-center overflow-hidden">
       
@@ -20,14 +22,26 @@ export default function Header() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
-            
-            <button className="px-7 py-3 bg-[#f5f5dc] text-black font-semibold rounded-2xl hover:scale-105 cursor-pointer hover:shadow-[0_10px_30px_rgba(255,255,255,0.2)] transition duration-200">
+            {isLoggedIn ? (
+              <>
+                 <button className="px-7 py-3 bg-[#f5f5dc] text-black font-semibold rounded-2xl hover:scale-105 cursor-pointer hover:shadow-[0_10px_30px_rgba(255,255,255,0.2)] transition duration-200">
               Create Room
             </button>
-
             <button className="px-7 py-3 border border-neutral-700 rounded-2xl hover:bg-neutral-900 hover:border-neutral-500 transition duration-200 cursor-pointer">
               Join Room
             </button>
+            </>
+            ):(
+              <>
+               <button className="px-7 py-3 bg-[#f5f5dc] text-black font-semibold rounded-2xl hover:scale-105 cursor-pointer hover:shadow-[0_10px_30px_rgba(255,255,255,0.2)] transition duration-200" onClick={()=>setOpenLogin(true)}>
+              Create Room
+            </button>
+            <button className="px-7 py-3 border border-neutral-700 rounded-2xl hover:bg-neutral-900 hover:border-neutral-500 transition duration-200 cursor-pointer" onClick={()=>setOpenLogin(true)}>
+              Join Room
+            </button>
+              </>
+            )}
+             
 
           </div>
           <p className="mt-6 text-sm text-neutral-500">
