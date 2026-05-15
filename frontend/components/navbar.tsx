@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import {useStore} from "@/context/StoreContext"
 export default function Navbar() {
   const router = useRouter();
- const {isLoggedIn}=useStore();
+ const {isLoggedIn,openLogin,setOpenLogin}=useStore();
 
   return (
     <nav className="w-full flex items-center justify-between px-8 py-4 border-b border-gray-800 bg-black text-white">
@@ -20,14 +20,14 @@ export default function Navbar() {
         {!isLoggedIn ? (
           <>
             <button
-              onClick={() => router.push("/login")}
+              onClick={() => setOpenLogin(true)}
               className="text-gray-300 hover:text-white cursor-pointer"
             >
               Login
             </button>
 
             <button
-              onClick={() => router.push("/login")}
+              onClick={() => setOpenLogin(true)}
               className="bg-[#f5f5dc] text-black px-5 py-2 rounded-lg font-medium hover:opacity-90 cursor-pointer"
             >
               Get Started
