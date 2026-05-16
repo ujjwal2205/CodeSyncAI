@@ -5,18 +5,24 @@ import http from "http";
 import {initSocket} from "./socket/socket";
 import {connectDB} from "./config/db";
 import userRouter from "./routes/userRoute";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 connectDB();
 const port=4000;
 const app=express();
-app.use(cors());
+app.use(cors({
+    origin:"http://localhost:3000",
+    credentials:true,
+}));
+app.use(cookieParser());
 app.use(express.json());
-app.use("/api/users",userRouter);
+app.use("/api/user",userRouter);
 const server=http.createServer(app);
 const io=new Server(server,{
     cors:{
-        origin:"*",
+        origin:"http://localhost:3000",
+        credentials:true
     }
 })
 initSocket(io);

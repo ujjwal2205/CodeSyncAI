@@ -1,20 +1,51 @@
 "use client";
-import {createContext,useContext,useState} from "react";
+import {createContext,useContext,useEffect,useState} from "react";
+import axios from "axios";
 type StoreContextType={
     isLoggedIn:boolean,
     setIsLoggedIn:(value:boolean)=>void,
     openLogin:boolean,
     setOpenLogin:(value:boolean)=>void,
     openSignup:boolean,
-    setOpenSignup:(value:boolean)=>void
+    setOpenSignup:(value:boolean)=>void,
+    url:string,
+    userDetails:{userName:string,email:string}|null,
 };
 const StoreContext=createContext<StoreContextType|null>(null);
 export function StoreProvider({children}:{children:React.ReactNode}){
-    const [isLoggedIn,setIsLoggedIn]=useState(true);
-    const [openLogin,setOpenLogin]=useState(false);
-    const [openSignup,setOpenSignup]=useState(false);
+    const url="http://localhost:4000";
+    const [userDetails,setUserDetails]=useState<{userName:string,email:string}|null>(null);
+    const [isLoggedIn,setIsLoggedIn]=useState<boolean>(false);
+    const [openLogin,setOpenLogin]=useState<boolean>(false);
+    const [openSignup,setOpenSignup]=useState<boolean>(false);
+    useEffect(()=>{
+        const fetchUserDetails=async()=>{
+            try {
+                const response:any=await axios.get(`${url}/api/user/details`,{withCredentials:true});
+                if(response.data.success){
+                    setIsLoggedIn(true);
+                    setUserDetails({
+                        userName:response.data.userName,
+                        email:response.data.email
+                    });
+                }
+                else{
+                    setIsLoggedIn(false);
+                }
+            } catch (error:any) {
+                if(error.response?.status==401){
+                setIsLoggedIn(false);
+                setUserDetails(null); 
+                }
+                else{
+                console.error("Error fetching user details:", error);
+                }
+            }
+        };
+        fetchUserDetails();
+    }, []);
     return(
-        <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup}}>
+        <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup,url,userDetails}}>
             {children}
         </StoreContext.Provider>
     )

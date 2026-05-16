@@ -1,8 +1,10 @@
 import express from "express";
-import {signUp,logIn,logOut,googleLogin} from "../controllers/userController";
+import authMiddleware from "../middleware/authMiddleware";
+import {signUp,logIn,logOut,googleLogin,fetchUserDetails} from "../controllers/userController";
 const userRouter=express.Router();
 userRouter.post("/signup",signUp);
 userRouter.post("/login",logIn);
 userRouter.post("/logout",logOut);
 userRouter.post("/googleLogin",googleLogin);
+userRouter.get("/details",authMiddleware,fetchUserDetails);
 export default userRouter;

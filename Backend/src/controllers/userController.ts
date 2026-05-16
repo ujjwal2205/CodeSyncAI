@@ -41,7 +41,7 @@ const signUp=async(req:any,res:any)=>{
         const token=createToken(newUser);
         res.cookie("token",token,{
             httpOnly:true,
-            sameSite:"none",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             secure:process.env.NODE_ENV==="production",
             maxAge:7*24*60*60*1000
         });
@@ -70,7 +70,7 @@ const logIn=async(req:any,res:any)=>{
         const token=createToken(user);
         res.cookie("token",token,{
             httpOnly:true,
-            sameSite:"none",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             secure:process.env.NODE_ENV==="production",
             maxAge:7*24*60*60*1000
         });
@@ -84,7 +84,7 @@ const logOut=async(req:any,res:any)=>{
     try {
         res.clearCookie("token",{
             httpOnly:true,
-            sameSite:"none",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             secure:process.env.NODE_ENV==="production"
         });
         return res.json({success:true,message:"Logged Out Successfully!"});
@@ -122,7 +122,7 @@ const googleLogin=async(req:any,res:any)=>{
         res.cookie("token",token,{
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"none",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge:7*24*60*60*1000
         });
         res.status(200).json({success:true,message:"Login Successful!",token})
@@ -131,4 +131,18 @@ const googleLogin=async(req:any,res:any)=>{
         return res.status(500).json({success:false,message:error.message});
     }
 }
-export {signUp,logIn,logOut,googleLogin};
+// fetch user details
+const fetchUserDetails=async(req:any,res:any)=>{
+    try {
+        const {userId}=req.user;
+        const user=await userModel.findById(userId);
+        if(!user){
+            return res.status(404).json({success:false,message:"User not found"});
+        }
+        return res.status(200).json({success:true,userName:user.userName,email:user.email});
+    } catch (error:any) {
+        console.log(error);
+        return res.status(500).json({success:false,message:error.message});
+    }
+}
+export {signUp,logIn,logOut,googleLogin,fetchUserDetails};

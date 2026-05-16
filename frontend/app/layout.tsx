@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <GoogleOAuthProvider clientId={process.env.VITE_GOOGLE_CLIENT_ID as any}>
+      <GoogleOAuthProvider clientId={process.env.NEXT_GOOGLE_CLIENT_ID as any}>
         <body className="min-h-full flex flex-col"><StoreProvider>{children}</StoreProvider></body>
       </GoogleOAuthProvider>
     </html>

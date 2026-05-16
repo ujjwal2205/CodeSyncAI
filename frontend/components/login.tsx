@@ -4,20 +4,49 @@ import { X, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import {toast} from "react-toastify";
 import axios from "axios";
 function Login() {
-  const { setOpenLogin,setOpenSignup} = useStore();
-  const [showPassword, setShowPassword] = useState(false);
+  const { setOpenLogin,setOpenSignup,url,setIsLoggedIn} = useStore();
+  const [showPassword, setShowPassword] =useState<boolean>(false);
+  const [formData,setFormData]=useState<{email:string,password:string}>({email:"",password:""});
     const handleSuccess=async(CredentialResponse:any)=>{
+      const token=CredentialResponse.credential as any;
     try {
-     
+      const response=await axios.post(url+"/api/user/googleLogin",{idToken:token},{withCredentials:true});
+      if(response.data.success){
+        setIsLoggedIn(true);
+        toast.success("Logged in successfully!");
+      }
+      else{
+        toast.error(response.data.message);
+      }
+      setOpenLogin(false);
     } catch (error) {
-      
+      toast.error("Failed to log in.");
     }
   }
     const handleError = () => {
         alert("Google Sign In was unsuccessful. Try again later.");
       };
+      const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
+        setFormData({...formData,[e.target.name]:e.target.value});
+      }
+      const handleSubmit=async(e:React.SubmitEvent<HTMLFormElement>)=>{
+      e.preventDefault();
+      try {
+        const response=await axios.post(url+"/api/user/login",formData,{withCredentials:true});
+      if(response.data.success){
+        setIsLoggedIn(true);
+        toast.success("Logged in successfully!");
+      }
+      else{
+        toast.error(response.data.message);
+      }
+      setOpenLogin(false);
+      } catch (error) {
+        toast.error("Failed to log in.");
+      }}
   return (
     <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-neutral-800/60 bg-neutral-950/85 backdrop-blur-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)]">
 
@@ -42,7 +71,7 @@ function Login() {
           </p>
         </div>
 
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
 
           <div className="group space-y-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 group-focus-within:text-[#f5f5dc]">
@@ -55,6 +84,9 @@ function Login() {
                 type="email"
                 required
                 placeholder="name@example.com"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full rounded-xl border border-neutral-800/80 bg-neutral-900/30 pl-11 pr-4 py-3 text-sm text-neutral-200 placeholder:text-neutral-600 outline-none transition focus:border-[#f5f5dc]/60 focus:bg-black/40 focus:ring-4 focus:ring-[#f5f5dc]/5"
               />
             </div>
@@ -82,6 +114,9 @@ function Login() {
                 type={showPassword ? "text" : "password"}
                 required
                 placeholder="••••••••"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full rounded-xl border border-neutral-800/80 bg-neutral-900/30 pl-11 pr-12 py-3 text-sm text-neutral-200 placeholder:text-neutral-600 outline-none transition focus:border-[#f5f5dc]/60 focus:bg-black/40 focus:ring-4 focus:ring-[#f5f5dc]/5"
               />
 
