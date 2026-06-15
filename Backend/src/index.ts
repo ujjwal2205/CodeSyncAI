@@ -5,6 +5,7 @@ import http from "http";
 import {initSocket} from "./socket/socket";
 import {connectDB} from "./config/db";
 import userRouter from "./routes/userRoute";
+import passwordResetRouter from "./routes/passwordResetRoute";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use("/api/user",userRouter);
+app.use("/api/forgot-password",passwordResetRouter);
 const server=http.createServer(app);
 const io=new Server(server,{
     cors:{

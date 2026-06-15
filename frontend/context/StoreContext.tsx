@@ -10,6 +10,8 @@ type StoreContextType={
     setOpenSignup:(value:boolean)=>void,
     url:string,
     userDetails:{userName:string,email:string}|null,
+    openForgotPassword:boolean,
+    setOpenForgotPassword:(value:boolean)=>void,
 };
 const StoreContext=createContext<StoreContextType|null>(null);
 export function StoreProvider({children}:{children:React.ReactNode}){
@@ -18,6 +20,7 @@ export function StoreProvider({children}:{children:React.ReactNode}){
     const [isLoggedIn,setIsLoggedIn]=useState<boolean>(false);
     const [openLogin,setOpenLogin]=useState<boolean>(false);
     const [openSignup,setOpenSignup]=useState<boolean>(false);
+    const [openForgotPassword,setOpenForgotPassword]=useState<boolean>(false);
     useEffect(()=>{
         const fetchUserDetails=async()=>{
             try {
@@ -45,7 +48,7 @@ export function StoreProvider({children}:{children:React.ReactNode}){
         fetchUserDetails();
     }, []);
     return(
-        <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup,url,userDetails}}>
+        <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup,url,userDetails,openForgotPassword,setOpenForgotPassword}}>
             {children}
         </StoreContext.Provider>
     )

@@ -15,7 +15,7 @@ export default function RightPanel({ output, customInput, setCustomInput }: any)
         <textarea
           value={customInput}
           onChange={(e) => setCustomInput(e.target.value)}
-          placeholder="Enter input here..."
+          placeholder="Enter input here.."
           className="w-full h-24 bg-black text-white text-sm font-mono p-2 rounded border border-gray-900 focus:outline-none resize-none"
         />
       </div>

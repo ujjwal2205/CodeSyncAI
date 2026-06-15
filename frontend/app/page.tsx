@@ -9,11 +9,11 @@ import Login from "@/components/login";
 import Signup from "@/components/signUp";
 import {ToastContainer} from "react-toastify";
 export default function Home(){
-  const {openLogin,openSignup} = useStore();
+  const {openLogin,openSignup,openForgotPassword} = useStore();
   return(
     <div className="bg-black min-h-screen text-white">
       <ToastContainer/>
-      {openLogin && (
+      {(openLogin || openForgotPassword) && (
          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <Login />
     </div>

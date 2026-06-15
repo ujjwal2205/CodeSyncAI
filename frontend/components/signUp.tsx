@@ -51,7 +51,7 @@ function Signup() {
       }
       }
   return (
-    <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-neutral-800/60 bg-neutral-950/85 backdrop-blur-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)]">
+    <div className="relative z-1000 w-full max-w-md overflow-hidden rounded-[2rem] border border-neutral-800/60 bg-neutral-950/85 backdrop-blur-3xl shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)]">
 
       <div className="absolute top-[-80px] left-[-80px] h-64 w-64 rounded-full bg-neutral-100/5 blur-[80px] pointer-events-none" />
       <div className="absolute bottom-[-100px] right-[-100px] h-64 w-64 rounded-full bg-[#f5f5dc]/10 blur-[100px] pointer-events-none" />

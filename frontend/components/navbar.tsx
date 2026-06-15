@@ -30,8 +30,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full flex items-center justify-between px-8 py-4 border-b border-gray-900 bg-black text-white relative z-50">
-      {/* Logo */}
+    <nav className="w-full flex items-center justify-between px-8 py-4 border-b border-gray-900 bg-black text-white relative z-10">
+     
       <h1
         onClick={() => router.push("/")}
         className="text-xl font-semibold cursor-pointer tracking-tight select-none"
@@ -39,7 +39,6 @@ export default function Navbar() {
         CodeSync <span className="text-[#f5f5dc]">AI</span>
       </h1>
 
-      {/* Action Buttons / Auth State */}
       <div className="flex items-center gap-4">
         {!isLoggedIn ? (
           <>
@@ -77,7 +76,6 @@ export default function Navbar() {
               onMouseEnter={() => setIsDropdownOpen(true)}
               onMouseLeave={() => setIsDropdownOpen(false)}
             >
-              {/* Profile Trigger Icon */}
               <button
                 className={`p-2 rounded-full border transition-all duration-200 cursor-pointer ${
                   isDropdownOpen 
@@ -96,7 +94,7 @@ export default function Navbar() {
               >
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-400 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-all duration-150 text-left group cursor-pointer"
+                  className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-400 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-all duration-150 text-left group cursor-pointer z-10"
                 >
                   <span className="font-medium">Logout</span>
                   <LogOut size={14} className="opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
