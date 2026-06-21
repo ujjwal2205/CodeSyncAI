@@ -5,8 +5,11 @@ import ControlsBar from "./controlsBar";
 import EditorSection from "./editorSelection";
 import RightPanel from "./rightPanel";
 import ChatPanel from "./chatPanel";
-
+import {useStore} from "@/context/StoreContext";
+import axios from "axios";
+import {toast} from "react-toastify";
 export default function EditorRoom({ roomId }: { roomId: string }) {
+  const {url}=useStore();
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -26,6 +29,21 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [rightWidth, setRightWidth] = useState<number>(25);
   const [isLoaded,setIsLoaded]=useState(false);
   const [output,setOutput]=useState("");
+  const codeChange=async(code:string)=>{
+    try{
+    const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
+    if(response.data.success){
+      setCode(code);
+    }
+    else{
+      toast.error(response.data.message);
+    }
+    }
+    catch(error:any){
+      console.log(error);
+      toast.error(error.message);
+    }
+  }
   const applySettings = (editor: any, prefs: any) => {
   editor.updateOptions({
     fontSize: prefs.fontSize,
@@ -109,7 +127,7 @@ const [showPreferences, setShowPreferences] = useState(false);
   applySettings(editorRef.current,preferences);
   localStorage.setItem("preferences",JSON.stringify(preferences));
 }, [preferences]);
-  const newFile = () => setCode("");
+  const newFile = () =>{codeChange("//Start Typing.")}
 
   const saveFile = () => {
     const blob = new Blob([code], { type: "text/plain" });
@@ -177,7 +195,7 @@ const [showPreferences, setShowPreferences] = useState(false);
   
       reader.onload = (event: any) => {
         const content = event.target.result;
-        setCode(content);
+        codeChange(content);
       };
   
       reader.readAsText(file);
