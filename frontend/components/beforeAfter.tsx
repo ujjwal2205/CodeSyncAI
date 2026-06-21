@@ -1,9 +1,32 @@
 import { motion } from "framer-motion";
 import { X, CheckCircle } from "lucide-react";
 import { useStore } from "@/context/StoreContext";
+import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import {toast} from "react-toastify";
 export default function BeforeAfter() {
-  const { setOpenLogin,isLoggedIn } = useStore();
+  const router=useRouter();
+  const { setOpenLogin,isLoggedIn,url } = useStore();
+  const [maxCapacityPopupOpen,setMaxCapacityPopupOpen]=useState<boolean>(false);
+   const [maxCapacity, setMaxCapacity] = useState<number>(1);
+   const createRoom=async()=>{
+    try{
+      const response=await axios.post(url+"/api/room/create",{maxCapacity},{withCredentials:true});
+      if(response.data.success){
+        router.push(`/editor/${response.data.roomId}`);
+      }
+      else{
+        toast.error("Failed to create room.");
+      }
+    }
+    catch(error:any){
+      console.log(error);
+      toast.error(error.message);
+    }
+    }
   return (
+    <>
     <section className="relative w-full -my-[70px] py-28 px-6 bg-black text-white overflow-hidden">
       
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05),transparent_70%)]" />
@@ -80,7 +103,7 @@ export default function BeforeAfter() {
           className="text-center mt-20"
         >
           {isLoggedIn ? (
-          <button className="px-10 py-4 rounded-2xl bg-white text-black font-medium hover:bg-neutral-200 transition duration-200 shadow-lg cursor-pointer">
+          <button className="px-10 py-4 rounded-2xl bg-white text-black font-medium hover:bg-neutral-200 transition duration-200 shadow-lg cursor-pointer" onClick={()=>setMaxCapacityPopupOpen(true)}>
               Launch Live Room →
             </button>) : (
             <button className="px-10 py-4 rounded-2xl bg-white text-black font-medium hover:bg-neutral-200 transition duration-200 shadow-lg cursor-pointer" onClick={() => setOpenLogin(true)}>
@@ -91,5 +114,59 @@ export default function BeforeAfter() {
 
       </div>
     </section>
+    {maxCapacityPopupOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+      onClick={() => setMaxCapacityPopupOpen(false)}
+    />
+
+    <div className="relative z-10 w-96 rounded-2xl bg-black border border-gray-900 p-6 shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+      <h2 className="text-xl font-semibold text-white mb-2">
+        Create Room
+      </h2>
+
+      <p className="text-sm text-gray-400 mb-6">
+        Select the maximum number of participants allowed in this room.
+      </p>
+
+      <input
+        type="range"
+        min="1"
+        max="10"
+        value={maxCapacity}
+        onChange={(e) => setMaxCapacity(Number(e.target.value))}
+        className="w-full accent-[#f5f5dc] cursor-pointer"
+      />
+
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-gray-400 text-sm">
+          Maximum Capacity
+        </span>
+
+        <span className="px-3 py-1 rounded-lg bg-gray-950 border border-gray-800 text-[#f5f5dc] font-semibold">
+          {maxCapacity}
+        </span>
+      </div>
+
+      <div className="flex gap-3 mt-8">
+        <button
+          onClick={createRoom}
+          className="flex-1 bg-[#f5f5dc] text-black py-2.5 rounded-lg font-medium hover:bg-[#e6e6cc] transition-all cursor-pointer"
+        >
+          Create Room
+        </button>
+
+        <button
+          onClick={() => setMaxCapacityPopupOpen(false)}
+          className="flex-1 border border-gray-800 text-gray-300 py-2.5 rounded-lg hover:bg-gray-900 hover:text-white transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+    </>
   );
 }
