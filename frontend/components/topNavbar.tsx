@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import MenuBar from "./menuBar";
-
+import {useRouter} from "next/navigation";
 export default function TopNavbar({
   roomId,
   newFile,
@@ -18,12 +18,13 @@ export default function TopNavbar({
 }: any) {
   const [showUsers, setShowUsers] = useState(false);
   
+  const router=useRouter();
   return (
     <div className="flex justify-between items-center px-5 py-2 z-1000 border-b border-gray-800 bg-[#0b0b0b]/80 backdrop-blur-md">
 
       <div className="flex items-center gap-6">
 
-        <h1 className="text-lg font-semibold tracking-wide text-white">
+        <h1 className="text-lg font-semibold tracking-wide text-white cursor-pointer" onClick={() => router.push("/")}>
           CodeSync AI
         </h1>
 
