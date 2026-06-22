@@ -28,9 +28,14 @@ export default function TopNavbar({
   try{
     const response=await axios.post(`${url}/api/room/leave`,{roomId},{withCredentials:true});
     if(response.data.success){
+      const res=await axios.post(`${url}/api/chat/deleteChats`,{roomId},{withCredentials:true});
+      if(!res.data.success){
+        toast.error(res.data.message);
+      }
       router.push("/");
     }
     else{
+      console.log(response.data.message);
       toast.error(response.data.message);
     }
   }

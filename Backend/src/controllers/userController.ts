@@ -139,7 +139,7 @@ const fetchUserDetails=async(req:any,res:any)=>{
         if(!user){
             return res.status(404).json({success:false,message:"User not found"});
         }
-        return res.status(200).json({success:true,userName:user.userName,email:user.email});
+        return res.status(200).json({success:true,userName:user.userName,email:user.email,userId:user._id});
     } catch (error:any) {
         console.log(error);
         return res.status(500).json({success:false,message:error.message});

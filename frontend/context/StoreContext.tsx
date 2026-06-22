@@ -9,14 +9,18 @@ type StoreContextType={
     openSignup:boolean,
     setOpenSignup:(value:boolean)=>void,
     url:string,
-    userDetails:{userName:string,email:string}|null,
+    userDetails:{userName:string,email:string},
     openForgotPassword:boolean,
     setOpenForgotPassword:(value:boolean)=>void,
 };
 const StoreContext=createContext<StoreContextType|null>(null);
 export function StoreProvider({children}:{children:React.ReactNode}){
     const url="http://localhost:4000";
-    const [userDetails,setUserDetails]=useState<{userName:string,email:string}|null>(null);
+    const [userDetails,setUserDetails]=useState<{userName:string,email:string,userId:string}>({
+        userName:"",
+        email:"",
+        userId:""
+    });
     const [isLoggedIn,setIsLoggedIn]=useState<boolean>(false);
     const [openLogin,setOpenLogin]=useState<boolean>(false);
     const [openSignup,setOpenSignup]=useState<boolean>(false);
@@ -29,7 +33,8 @@ export function StoreProvider({children}:{children:React.ReactNode}){
                     setIsLoggedIn(true);
                     setUserDetails({
                         userName:response.data.userName,
-                        email:response.data.email
+                        email:response.data.email,
+                        userId:response.data.userId
                     });
                 }
                 else{
@@ -38,7 +43,11 @@ export function StoreProvider({children}:{children:React.ReactNode}){
             } catch (error:any) {
                 if(error.response?.status==401){
                 setIsLoggedIn(false);
-                setUserDetails(null); 
+                setUserDetails({
+                    userName:"",
+                    email:"",
+                    userId:""
+                }); 
                 }
                 else{
                 console.error("Error fetching user details:", error);

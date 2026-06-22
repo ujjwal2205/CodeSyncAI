@@ -546,7 +546,10 @@ const [showPreferences, setShowPreferences] = useState(false);
             style={{ width: `${rightWidth}%` }}
             className="min-w-[240px] will-change-[width]"
           >
-            <ChatPanel />
+            <ChatPanel 
+            roomId={roomId}
+            code={code}
+            />
           </div>
         )}
       </div>
