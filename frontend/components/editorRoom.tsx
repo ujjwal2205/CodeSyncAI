@@ -8,6 +8,7 @@ import ChatPanel from "./chatPanel";
 import {useStore} from "@/context/StoreContext";
 import axios from "axios";
 import {toast} from "react-toastify";
+
 import { useMonaco } from "@monaco-editor/react";
 export default function EditorRoom({ roomId }: { roomId: string }) {
   const monaco = useMonaco();
@@ -16,9 +17,7 @@ export default function EditorRoom({ roomId }: { roomId: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [language, setLanguage] = useState<string>("javascript");
-  const [theme, setTheme] = useState<string>(()=>{
-    return localStorage.getItem("theme") || "Dracula";
-  });
+  const [theme, setTheme] = useState<string>("vs-dark");
   const [code, setCode] = useState<string>("// Start coding...");
   const [showChat, setShowChat] = useState<boolean>(true);
   const [customInput, setCustomInput] = useState<string>("");
@@ -36,7 +35,6 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [themesLoaded,setThemesLoaded]=useState(false);
   useEffect(() => {
     if (!monaco) return;
-      monaco.editor.setTheme(theme);
     const loadTheme = async (themeName: string) => {
       try {
         const res = await fetch(
@@ -51,14 +49,32 @@ const [showPreferences, setShowPreferences] = useState(false);
     const loadThemes=async()=>{
       await Promise.all([
      loadTheme("monokai"),
-    loadTheme("Dracula"),
-    loadTheme("Solarized-dark"),
-    loadTheme("Solarized-light")
-      ]);
-      setThemesLoaded(true);
-    }
-    loadThemes();
+     loadTheme("Dracula"),
+     loadTheme("Solarized-dark"),
+     loadTheme("Solarized-light")
+    ]);
+    const prefferedTheme=localStorage.getItem("theme") || "vs-dark";
+    setTheme(prefferedTheme);
+    monaco.editor.setTheme(theme);
+    setThemesLoaded(true);
+  }
+  loadThemes();
   }, [monaco]);
+  useEffect(()=>{
+  if(!roomId) return;
+  const timer=setTimeout(async ()=>{
+    try {
+      const response=await axios.post(`${url}/api/room/code-change`,{roomId,code},{withCredentials:true});
+      if(!response.data.success){
+        toast.error(response.data.message);
+      }
+    } catch (error:any) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  },1000);
+  return ()=>clearTimeout(timer);
+  },[code]);
   const codeChange=async(code:string)=>{
     try{
     const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
@@ -283,6 +299,22 @@ const [showPreferences, setShowPreferences] = useState(false);
   
   useEffect(()=>{
     try {
+      const fetch=async()=>{
+        try {
+          const response=await axios.post(url+"/api/room/get-code",{roomId},{withCredentials:true});
+      if(response.data.success){
+        setCode(response.data.code);
+      }
+      else{
+        toast.error(response.data.message);
+      }
+        } catch (error:any) {
+          console.log(error);
+          toast.error(error.message);
+        }
+      
+      }
+      fetch();
       const saved=localStorage.getItem("layout");
       const pref=localStorage.getItem("preferences");
       if(saved){

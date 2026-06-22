@@ -40,7 +40,7 @@ export default function ControlsBar({
         <select
           value={language}
           onChange={(e) => {changeLanguage(e)}}
-          className="bg-[#1e1e1e] text-white px-3 py-1.5 rounded-md text-sm border border-gray-700 hover:border-gray-500 transition outline-none"
+          className="bg-[#1e1e1e] text-white px-3 py-1.5 rounded-md text-sm border border-gray-700 hover:border-gray-500 transition outline-none cursor-pointer"
         >
           <option value="javascript">JavaScript</option>
           <option value="cpp">C++</option>
@@ -50,7 +50,7 @@ export default function ControlsBar({
       </div>
 
      
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 ">
         <span className="text-gray-400 text-xs uppercase tracking-wide">
           Theme
         </span>
@@ -58,7 +58,7 @@ export default function ControlsBar({
         <select
           value={theme}
           onChange={(e) => {setTheme(e.target.value);localStorage.setItem("theme",e.target.value)}}
-          className="bg-[#1e1e1e] text-white px-3 py-1.5 rounded-md text-sm border border-gray-700 hover:border-gray-500 transition outline-none"
+          className="bg-[#1e1e1e] text-white px-3 py-1.5 rounded-md text-sm border border-gray-700 hover:border-gray-500 transition outline-none cursor-pointer"
         >
           <option value="vs">Light</option>
           <option value="vs-dark">Dark</option>

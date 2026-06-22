@@ -119,7 +119,7 @@ export default function TopNavbar({
           </button>
 
           {showUsers && (
-            <div className="absolute right-0 mt-2 w-52 bg-zinc-900/90 backdrop-blur-md border border-zinc-800/80 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute right-0 mt-2 w-52 bg-zinc-900 backdrop-blur-md border border-zinc-800/80 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="px-3.5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-500 border-b border-zinc-800/60">
                 Active Users
               </div>
@@ -133,13 +133,12 @@ export default function TopNavbar({
                   </span>
                 </div>
 
-                {/* Participants */}
                 {users.participants
                   .filter((user: any) => user._id !== users.createdBy._id)
                   .map((user: any) => (
                     <div
                       key={user._id}
-                      className="px-2.5 py-2 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 rounded-md cursor-pointer transition-colors truncate"
+                      className="px-2.5 py-2 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 rounded-md cursor-pointer transition-colors truncate"
                     >
                       {user.userName}
                     </div>
@@ -149,7 +148,6 @@ export default function TopNavbar({
           )}
         </div>
 
-        {/* Run Button */}
         <button
           className={`flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 ${
             isRunning
@@ -163,7 +161,6 @@ export default function TopNavbar({
           <span>Run</span>
         </button>
 
-        {/* Leave Button */}
         <button
           onClick={leaveRoom}
           className="flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium border border-red-950 bg-red-950/20 text-red-400 hover:text-red-300 hover:bg-red-900/30 hover:border-red-800 transition-all duration-200 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-zinc-950"
