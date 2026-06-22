@@ -8,13 +8,17 @@ import ChatPanel from "./chatPanel";
 import {useStore} from "@/context/StoreContext";
 import axios from "axios";
 import {toast} from "react-toastify";
+import { useMonaco } from "@monaco-editor/react";
 export default function EditorRoom({ roomId }: { roomId: string }) {
+  const monaco = useMonaco();
   const {url}=useStore();
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [language, setLanguage] = useState<string>("javascript");
-  const [theme, setTheme] = useState<string>("vs-dark");
+  const [theme, setTheme] = useState<string>(()=>{
+    return localStorage.getItem("theme") || "Dracula";
+  });
   const [code, setCode] = useState<string>("// Start coding...");
   const [showChat, setShowChat] = useState<boolean>(true);
   const [customInput, setCustomInput] = useState<string>("");
@@ -29,6 +33,32 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [rightWidth, setRightWidth] = useState<number>(25);
   const [isLoaded,setIsLoaded]=useState(false);
   const [output,setOutput]=useState("");
+  const [themesLoaded,setThemesLoaded]=useState(false);
+  useEffect(() => {
+    if (!monaco) return;
+      monaco.editor.setTheme(theme);
+    const loadTheme = async (themeName: string) => {
+      try {
+        const res = await fetch(
+          `https://unpkg.com/monaco-themes@0.4.4/themes/${themeName}.json`
+        );
+        const data = await res.json();
+        monaco.editor.defineTheme(themeName, data);
+      } catch {
+        console.log("Theme load failed:", themeName);
+      }
+    };
+    const loadThemes=async()=>{
+      await Promise.all([
+     loadTheme("monokai"),
+    loadTheme("Dracula"),
+    loadTheme("Solarized-dark"),
+    loadTheme("Solarized-light")
+      ]);
+      setThemesLoaded(true);
+    }
+    loadThemes();
+  }, [monaco]);
   const codeChange=async(code:string)=>{
     try{
     const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
@@ -431,6 +461,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         theme={theme}
         setTheme={setTheme}
         setCode={setCode}
+        roomId={roomId}
       />
 
       <div
@@ -441,13 +472,14 @@ const [showPreferences, setShowPreferences] = useState(false);
         <div
           style={{ width: `${leftWidth}%` }}
         > 
-        {isLoaded &&(
+        {isLoaded && themesLoaded &&(
           <EditorSection
             language={language}
             theme={theme}
             code={code}
             setCode={setCode}
             onMount={handleEditorDidMount}
+            
           />)}
         </div>
 

@@ -9,6 +9,7 @@ export default function EditorSection({
   setCode,
   onMount,
 }: any) {
+  
   return (
     <div className="h-full w-full bg-[#0d0d0d] rounded-xl overflow-hidden border border-gray-800 shadow-md">
       <Editor
