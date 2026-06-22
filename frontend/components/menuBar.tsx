@@ -1,10 +1,40 @@
 "use client";
 
 import { useState } from "react";
-
-export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAsFile,setShowPreferences }: any) {
+import {useStore} from "@/context/StoreContext"
+import axios from "axios";
+import {toast} from 'react-toastify';
+export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAsFile,setShowPreferences,editorRef,roomId }: any) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-
+  const {url}=useStore();
+  const undo=async()=>{
+    try{
+   await runCommand("undo");
+   const code=editorRef.current?.getValue();
+   const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
+   if(!response.data.success){
+   toast.error("Can't able to save change to DB");
+   }
+  }
+  catch(error:any){
+    console.log(error);
+    toast.error(error.message);
+  }
+  }
+  const redo=async()=>{
+    try{
+   await runCommand("redo");
+   const code=editorRef.current?.getValue();
+   const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
+   if(!response.data.success){
+   toast.error("Can't able to save change to DB");
+   }
+  }
+  catch(error:any){
+    console.log(error);
+    toast.error(error.message);
+  }
+  }
   return (
     <div className="flex gap-4 text-sm text-gray-300 relative z-10000">
       {["File", "Edit", "Selection"].map((menu) => (
@@ -33,8 +63,8 @@ export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAs
 
               {menu === "Edit" && (
                 <>
-                  <div onClick={() => { runCommand("undo"); setActiveMenu(null); }} className="px-4 py-2 hover:bg-gray-800 cursor-pointer transition">Undo</div>
-                  <div onClick={() => { runCommand("redo"); setActiveMenu(null); }} className="px-4 py-2 hover:bg-gray-800 cursor-pointer transition">Redo</div>
+                  <div onClick={() => { undo(); setActiveMenu(null); }} className="px-4 py-2 hover:bg-gray-800 cursor-pointer transition">Undo</div>
+                  <div onClick={() => { redo(); setActiveMenu(null); }} className="px-4 py-2 hover:bg-gray-800 cursor-pointer transition">Redo</div>
                   <div onClick={() => { runCommand("actions.find"); setActiveMenu(null); }} className="px-4 py-2 hover:bg-gray-800 cursor-pointer transition">Find</div>
                 </>
               )}

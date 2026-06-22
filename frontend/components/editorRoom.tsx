@@ -127,7 +127,7 @@ const [showPreferences, setShowPreferences] = useState(false);
   applySettings(editorRef.current,preferences);
   localStorage.setItem("preferences",JSON.stringify(preferences));
 }, [preferences]);
-  const newFile = () =>{codeChange("//Start Typing.")}
+  const newFile = () =>{codeChange("// Start coding...")}
 
   const saveFile = () => {
     const blob = new Blob([code], { type: "text/plain" });
@@ -422,6 +422,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         setShowPreferences={setShowPreferences}
         runCode={runCode}
         isRunning={isRunning}
+        editorRef={editorRef}
       />
 
       <ControlsBar

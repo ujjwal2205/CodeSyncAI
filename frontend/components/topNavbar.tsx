@@ -18,6 +18,7 @@ export default function TopNavbar({
   setShowPreferences,
   runCode,
   isRunning,
+  editorRef
 }: any) {
   const [showUsers, setShowUsers] = useState(false);
   const {url}=useStore();
@@ -54,6 +55,8 @@ export default function TopNavbar({
             openFile={openFile}
             saveAsFile={saveAsFile}
             setShowPreferences={setShowPreferences}
+            editorRef={editorRef}
+            roomId={roomId}
           />
         </div>
       </div>
