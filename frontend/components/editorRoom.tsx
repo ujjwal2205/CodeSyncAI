@@ -12,7 +12,7 @@ import {toast} from "react-toastify";
 import { useMonaco } from "@monaco-editor/react";
 export default function EditorRoom({ roomId }: { roomId: string }) {
   const monaco = useMonaco();
-  const {url}=useStore();
+  const {url,socket,userDetails}=useStore();
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -33,6 +33,18 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [isLoaded,setIsLoaded]=useState(false);
   const [output,setOutput]=useState("");
   const [themesLoaded,setThemesLoaded]=useState(false);
+  useEffect(()=>{
+     if (!socket.connected) {
+    socket.connect();
+  }
+    const isOwner = localStorage.getItem("isOwner") === "true";
+    socket.emit("joinRoom",{
+      roomId,
+      userName:userDetails.userName,
+      isOwner
+    })
+   
+  },[roomId]);
   useEffect(() => {
     if (!monaco) return;
     const loadTheme = async (themeName: string) => {
@@ -80,6 +92,9 @@ const [showPreferences, setShowPreferences] = useState(false);
     const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
     if(response.data.success){
       setCode(code);
+      socket.emit("codeChange",{
+        roomId,code
+      })
     }
     else{
       toast.error(response.data.message);
@@ -302,11 +317,19 @@ const [showPreferences, setShowPreferences] = useState(false);
       const fetch=async()=>{
         try {
           const response=await axios.post(url+"/api/room/get-code",{roomId},{withCredentials:true});
+          const response2=await axios.post(url+"/api/room/get-language",{roomId},{withCredentials:true});
+          
       if(response.data.success){
         setCode(response.data.code);
       }
       else{
         toast.error(response.data.message);
+      }
+      if(response2.data.success){
+        setLanguage(response2.data.language);
+      }
+      else{
+        toast.error(response2.data.message);
       }
         } catch (error:any) {
           console.log(error);
@@ -338,6 +361,14 @@ const [showPreferences, setShowPreferences] = useState(false);
       setIsLoaded(true);
     }
   },[]);
+  useEffect(()=>{
+   socket.on("codeUpdate",(updatedCode:string)=>{
+    setCode(updatedCode);
+   });
+   return ()=>{
+    socket.off("codeUpdate");
+   }
+  },[])
   return (
     <div className="h-screen flex flex-col bg-[#0f0f0f] text-white">
       {showPreferences && (

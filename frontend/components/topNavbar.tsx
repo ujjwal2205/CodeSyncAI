@@ -18,11 +18,12 @@ export default function TopNavbar({
   setShowPreferences,
   runCode,
   isRunning,
-  editorRef
+  editorRef,
+  setCode
 }: any) {
   const [showUsers, setShowUsers] = useState(false);
   const [users,setUsers]=useState<any>(null);
-  const {url}=useStore();
+  const {url,socket}=useStore();
   const router=useRouter();
   const leaveRoom=async()=>{
   try{
@@ -32,6 +33,7 @@ export default function TopNavbar({
       if(!res.data.success){
         toast.error(res.data.message);
       }
+      socket.disconnect();
       router.push("/");
     }
     else{
@@ -61,6 +63,7 @@ export default function TopNavbar({
     toast.error(error.message);
   }}
   fetchData();
+  
   },[]);
   return (
     <div className="flex justify-between items-center px-5 py-2 z-1000 border-b border-gray-800 bg-[#0b0b0b]/80 backdrop-blur-md">
@@ -81,6 +84,7 @@ export default function TopNavbar({
             setShowPreferences={setShowPreferences}
             editorRef={editorRef}
             roomId={roomId}
+            setCode={setCode}
           />
         </div>
       </div>
@@ -98,7 +102,7 @@ export default function TopNavbar({
 
       <div className="flex items-center gap-3">
 
-        {/* Chat Toggle Button */}
+       
         <button
           onClick={() => setShowChat((prev: boolean) => !prev)}
           className={`flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium border transition-all duration-200 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950

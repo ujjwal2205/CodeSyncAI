@@ -12,7 +12,7 @@ export default function ControlsBar({
   roomId
 }: any) {
   
-  const {url}=useStore();
+  const {url,socket}=useStore();
   
   const changeLanguage=async(e:React.ChangeEvent<HTMLSelectElement>)=>{
     try {
@@ -20,6 +20,8 @@ export default function ControlsBar({
       const response=await axios.post(url+"/api/room/language-change",{roomId,language},{withCredentials:true});
       if(response.data.success){
         setLanguage(language);
+        socket.emit("languageChange",{roomId,language});
+        socket.emit("codeChange",{roomId,code:"// Start coding..."});
         setCode("// Start coding...");
       }
       else{
@@ -30,6 +32,14 @@ export default function ControlsBar({
       toast.error(error.message);
     }
   }
+  useEffect(()=>{
+    socket.on("languageUpdate",(language:string)=>{
+      setLanguage(language);
+    });
+    return ()=>{
+      socket.off("languageUpdate");
+    } 
+  },[]);
   return (
     <div className="flex items-center justify-between px-5 py-2 bg-[#111]/70 backdrop-blur-md border-b border-gray-800">
       <div className="flex items-center gap-3">

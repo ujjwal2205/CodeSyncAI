@@ -36,6 +36,7 @@ export default function Navbar() {
     try{
       const response=await axios.post(url+"/api/room/create",{maxCapacity},{withCredentials:true});
       if(response.data.success){
+        localStorage.setItem("isOwner","true");
         router.push(`/editor/${response.data.roomId}`);
       }
       else{

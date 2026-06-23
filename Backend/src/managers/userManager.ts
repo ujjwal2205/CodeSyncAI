@@ -1,6 +1,6 @@
-    type User={
-    userName:string;
-    roomId:string;
+type User={
+userName:string;
+roomId:string;
 }
     const onlineUsers=new Map<string,User>();
 export const addUser=(socketId:string,roomId:string,userName:string)=>{

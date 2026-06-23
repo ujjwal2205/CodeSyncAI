@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import {useStore} from "@/context/StoreContext"
 import axios from "axios";
 import {toast} from 'react-toastify';
-export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAsFile,setShowPreferences,editorRef,roomId }: any) {
+export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAsFile,setShowPreferences,editorRef,roomId,setCode }: any) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const {url}=useStore();
+  const {url,socket}=useStore();
   const undo=async()=>{
     try{
    await runCommand("undo");
    const code=editorRef.current?.getValue();
+   socket.emit("codeChange",{
+        roomId,code
+      })
    const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
    if(!response.data.success){
    toast.error("Can't able to save change to DB");
@@ -25,6 +28,9 @@ export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAs
     try{
    await runCommand("redo");
    const code=editorRef.current?.getValue();
+   socket.emit("codeChange",{
+        roomId,code
+      })
    const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
    if(!response.data.success){
    toast.error("Can't able to save change to DB");
@@ -35,6 +41,14 @@ export default function MenuBar({ newFile, saveFile, runCommand, openFile,saveAs
     toast.error(error.message);
   }
   }
+  useEffect(()=>{
+     socket.on("codeUpdate",(updatedCode:string)=>{
+      setCode(updatedCode);
+     });
+     return ()=>{
+      socket.off("codeUpdate");
+     }
+    },[])
   return (
     <div className="flex gap-4 text-sm text-gray-300 relative z-10000">
       {["File", "Edit", "Selection"].map((menu) => (

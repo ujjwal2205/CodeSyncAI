@@ -1,6 +1,9 @@
 "use client";
 import {createContext,useContext,useEffect,useState} from "react";
 import axios from "axios";
+import {io} from "socket.io-client";
+
+import { useRef } from "react";
 type StoreContextType={
     isLoggedIn:boolean,
     setIsLoggedIn:(value:boolean)=>void,
@@ -12,10 +15,22 @@ type StoreContextType={
     userDetails:{userName:string,email:string},
     openForgotPassword:boolean,
     setOpenForgotPassword:(value:boolean)=>void,
+    socket:any
 };
 const StoreContext=createContext<StoreContextType|null>(null);
 export function StoreProvider({children}:{children:React.ReactNode}){
     const url="http://localhost:4000";
+    const socketRef = useRef<any>(null);
+
+if (!socketRef.current) {
+  console.log("Creating socket");
+  socketRef.current = io(url, {
+    withCredentials: true,
+  });
+}
+
+const socket = socketRef.current;
+
     const [userDetails,setUserDetails]=useState<{userName:string,email:string,userId:string}>({
         userName:"",
         email:"",
@@ -57,7 +72,7 @@ export function StoreProvider({children}:{children:React.ReactNode}){
         fetchUserDetails();
     }, []);
     return(
-        <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup,url,userDetails,openForgotPassword,setOpenForgotPassword}}>
+        <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup,url,userDetails,openForgotPassword,setOpenForgotPassword,socket}}>
             {children}
         </StoreContext.Provider>
     )
