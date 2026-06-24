@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { StoreProvider } from "@/context/StoreContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./globals.css";
-
+import {ToastContainer} from "react-toastify";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,7 +30,11 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <GoogleOAuthProvider clientId={process.env.NEXT_GOOGLE_CLIENT_ID as any}>
-        <body className="min-h-full flex flex-col"><StoreProvider>{children}</StoreProvider></body>
+        <body className="min-h-full flex flex-col">
+          <StoreProvider>
+            {children}
+            <ToastContainer/>
+            </StoreProvider></body>
       </GoogleOAuthProvider>
     </html>
   );

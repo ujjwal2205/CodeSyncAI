@@ -1,4 +1,5 @@
 import roomModel from "../models/room";
+import { setCode } from "../managers/codeManager";
 function generateRoomId():string{
 const letters="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const digits="0123456789";
@@ -19,6 +20,7 @@ const createRoomController=async(req:any,res:any)=>{
     while(await roomModel.findOne({roomId})){
      roomId=generateRoomId();
     }
+    setCode(roomId,"// Start Typing...");
     const newRoom=await roomModel.create({
         roomId,
         code:"// Start coding...",

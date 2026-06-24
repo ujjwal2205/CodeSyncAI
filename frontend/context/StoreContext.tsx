@@ -12,7 +12,7 @@ type StoreContextType={
     openSignup:boolean,
     setOpenSignup:(value:boolean)=>void,
     url:string,
-    userDetails:{userName:string,email:string},
+    userDetails:{userName:string,email:string,userId:string},
     openForgotPassword:boolean,
     setOpenForgotPassword:(value:boolean)=>void,
     socket:any

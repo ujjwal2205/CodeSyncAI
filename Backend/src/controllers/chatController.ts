@@ -1,6 +1,8 @@
 import chatModel from "../models/chatModel";
 import roomModel from "../models/room";
+import userModel from "../models/user";
 import { askGemini } from "../services/gemini";
+import { io } from "../socket/socket";
 const getMessages=async(req:any,res:any)=>{
     const {roomId,type}=req.body;
     try{
@@ -43,8 +45,12 @@ const addMessagesAI=async(req:any,res:any)=>{
     const {userId}=req.user;
     try {
         const room=await roomModel.findOne({roomId});
+        const user=await userModel.findById(userId);
         if(!room){
             return res.json({success:false,message:"Room not found"});
+        }
+        if(!user){
+            return res.json({success:false,message:"User not found"});
         }
         if(!message?.trim()){return res.json({success:false,message:"Message is required"});}
         const newMessage:any={
@@ -54,6 +60,8 @@ const addMessagesAI=async(req:any,res:any)=>{
             senderId:userId,
             message
         }
+        console.log("roomId");
+        io.to(roomId).emit("receiveUserMessage",{message,role:"user",senderId:{userName:user.userName}});
         await chatModel.create(newMessage);
         const aiReply= await askGemini(message);
         await chatModel.create({
@@ -62,6 +70,7 @@ const addMessagesAI=async(req:any,res:any)=>{
             role:"assistant",
             message:aiReply
         })
+        io.to(roomId).emit("receiveAiMessage",{message:aiReply,role:"ai"});
         return res.json({success:true,aiReply});
     } catch (error:any) {
         console.log(error);

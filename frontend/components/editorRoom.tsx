@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import TopNavbar from "./topNavbar";
 import ControlsBar from "./controlsBar";
 import EditorSection from "./editorSelection";
@@ -12,6 +13,7 @@ import {toast} from "react-toastify";
 import { useMonaco } from "@monaco-editor/react";
 export default function EditorRoom({ roomId }: { roomId: string }) {
   const monaco = useMonaco();
+  const router=useRouter();
   const {url,socket,userDetails}=useStore();
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,6 +35,8 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [isLoaded,setIsLoaded]=useState(false);
   const [output,setOutput]=useState("");
   const [themesLoaded,setThemesLoaded]=useState(false);
+  const [typingUser,setTypingUser]=useState<string>("");
+  const [editorLocked,setEditorLocked]=useState<boolean>(false);
   useEffect(()=>{
      if (!socket.connected) {
     socket.connect();
@@ -41,7 +45,8 @@ const [showPreferences, setShowPreferences] = useState(false);
     socket.emit("joinRoom",{
       roomId,
       userName:userDetails.userName,
-      isOwner
+      isOwner,
+      userId:userDetails.userId,
     })
    
   },[roomId]);
@@ -72,26 +77,12 @@ const [showPreferences, setShowPreferences] = useState(false);
   }
   loadThemes();
   }, [monaco]);
-  useEffect(()=>{
-  if(!roomId) return;
-  const timer=setTimeout(async ()=>{
-    try {
-      const response=await axios.post(`${url}/api/room/code-change`,{roomId,code},{withCredentials:true});
-      if(!response.data.success){
-        toast.error(response.data.message);
-      }
-    } catch (error:any) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  },1000);
-  return ()=>clearTimeout(timer);
-  },[code]);
+  
   const codeChange=async(code:string)=>{
     try{
     const response=await axios.post(url+"/api/room/code-change",{roomId,code},{withCredentials:true});
     if(response.data.success){
-      setCode(code);
+      
       socket.emit("codeChange",{
         roomId,code
       })
@@ -167,10 +158,12 @@ const [showPreferences, setShowPreferences] = useState(false);
     const stdout = decodeBase64(data.stdout);
     const stderr = decodeBase64(data.stderr);
     const compileOutput = decodeBase64(data.compile_output);
-
-   
-
-    setOutput(compileOutput || stderr || stdout || "No output");
+    const finalOutput = compileOutput || stderr || stdout || "No output";
+    setOutput(finalOutput);
+    socket.emit("runCode", {
+    roomId,
+    output: finalOutput,
+    });
   } catch (error: any) {
     console.error(error);
     setOutput("Something went wrong while running code");
@@ -316,15 +309,10 @@ const [showPreferences, setShowPreferences] = useState(false);
     try {
       const fetch=async()=>{
         try {
-          const response=await axios.post(url+"/api/room/get-code",{roomId},{withCredentials:true});
+       
           const response2=await axios.post(url+"/api/room/get-language",{roomId},{withCredentials:true});
           
-      if(response.data.success){
-        setCode(response.data.code);
-      }
-      else{
-        toast.error(response.data.message);
-      }
+      
       if(response2.data.success){
         setLanguage(response2.data.language);
       }
@@ -365,8 +353,45 @@ const [showPreferences, setShowPreferences] = useState(false);
    socket.on("codeUpdate",(updatedCode:string)=>{
     setCode(updatedCode);
    });
+   socket.on("kicked",()=>{
+    toast.error("You were removed from the room");
+   
+    router.push("/");
+
+});
+   socket.on("roomClosed",()=>{
+    toast.error("Room has been closed by the host.");
+    router.push("/");
+   })
+   socket.on("runCodeUpdate",(output:string)=>{
+   setOutput(output);
+   })
+   socket.on("customInputChange",(input:string)=>{
+    setCustomInput(input);
+   })
+   socket.on("userTyping",({userName}:{userName:string})=>{
+    if(userName !== userDetails.userName){
+        setEditorLocked(true);
+    }
+    setTypingUser(userName);
+   });
+   socket.on("userStoppedTyping",({userName}:{userName:string})=>{
+    setTypingUser("");
+    setEditorLocked(false);
+   })
+   socket.on("editorLocked",()=>{
+    setEditorLocked(true);
+    toast.info("Someonse else is typing.");
+   })
    return ()=>{
     socket.off("codeUpdate");
+    socket.off("kicked");
+    socket.off("roomClosed");
+    socket.off("runCodeUpdate");
+    socket.off("customInputChange");
+    socket.off("userTyping");
+    socket.off("userStoppedTyping");
+    socket.off("editorLocked");
    }
   },[])
   return (
@@ -542,7 +567,9 @@ const [showPreferences, setShowPreferences] = useState(false);
             code={code}
             setCode={setCode}
             onMount={handleEditorDidMount}
-            
+            roomId={roomId}
+            typingUser={typingUser}
+            editorLocked={editorLocked}
           />)}
         </div>
 
@@ -558,7 +585,7 @@ const [showPreferences, setShowPreferences] = useState(false);
         <div
           style={{ width: `${100 - leftWidth - rightWidth}%` }}
         >
-          <RightPanel output={output} customInput={customInput} setCustomInput={setCustomInput} />
+          <RightPanel output={output} customInput={customInput} setCustomInput={setCustomInput} roomId={roomId} />
         </div>
 
         {/*Divider 2 */}

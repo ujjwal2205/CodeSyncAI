@@ -1,10 +1,11 @@
-const roomCode=new Map<string,string>();
-export const setCode=(roomId:string,code:string)=>{
-    roomCode.set(roomId,code);
+import { redis } from "../redis";
+
+export const setCode=async (roomId:string,code:string)=>{
+    await redis.set(roomId,code);
 }
-export const getCode=(roomId:string)=>{
-    return roomCode.get(roomId);
+export const getCode=async (roomId:string)=>{
+    return await redis.get(roomId);
 }
-export const deleteCode=(roomId:string)=>{
-    roomCode.delete(roomId);
+export const deleteCode=async(roomId:string)=>{
+    await redis.del(roomId);
 }

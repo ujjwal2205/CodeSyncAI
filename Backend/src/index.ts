@@ -24,6 +24,7 @@ app.use("/api/user",userRouter);
 app.use("/api/forgot-password",passwordResetRouter);
 app.use("/api/room",roomRoute);
 app.use("/api/chat",chatRoute);
+
 const server=http.createServer(app);
 const io=new Server(server,{
     cors:{
@@ -32,6 +33,7 @@ const io=new Server(server,{
     }
 })
 initSocket(io);
+
 server.listen(port,()=>{
     console.log(`Server is running on port ${port}`);
 })

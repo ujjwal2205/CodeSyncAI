@@ -22,8 +22,9 @@ export default function TopNavbar({
   setCode
 }: any) {
   const [showUsers, setShowUsers] = useState(false);
-  const [users,setUsers]=useState<any>(null);
-  const {url,socket}=useStore();
+  const [users,setUsers]=useState<any[]>([]);
+  const [owner,setOwner]=useState<boolean>(false);
+  const {url,socket,userDetails}=useStore();
   const router=useRouter();
   const leaveRoom=async()=>{
   try{
@@ -31,9 +32,12 @@ export default function TopNavbar({
     if(response.data.success){
       const res=await axios.post(`${url}/api/chat/deleteChats`,{roomId},{withCredentials:true});
       if(!res.data.success){
-        toast.error(res.data.message);
+        console.log(res.data.message);
       }
       socket.disconnect();
+      if(localStorage.getItem("isOwner")!==null){
+        localStorage.removeItem("isOwner");
+      }
       router.push("/");
     }
     else{
@@ -46,24 +50,32 @@ export default function TopNavbar({
     toast.error(error.message);
   }
   }
+  const kick=async(userId:string)=>{
+    try {
+      const response=await axios.post(url+"/api/room/kick",{roomId,userId},{withCredentials:true});
+      if(!response.data.success){
+        console.log(response.data.message);
+        toast.error(response.data.message);
+        return;
+      }
+      socket.emit("kick",{roomId,userId});
+    } catch (error:any) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  }
   useEffect(()=>{
-    const fetchData=async()=>{
-  try{
-    const response=await axios.post(url+"/api/room/users",{roomId},{withCredentials:true});
-    if(response.data.success){
-    setUsers(response.data.users);
+    socket.on("roomUsers",(users:any)=>{
+      setUsers(users);
+    })
+    return ()=>{
+      socket.off("roomUsers");
     }
-    else{
-      toast.error(response.data.message);
+  },[]);
+  useEffect(()=>{
+    if(localStorage.getItem("isOwner")!==null){
+      setOwner(true);
     }
-   }
-  
-  catch(error:any){
-    console.log(error);
-    toast.error(error.message);
-  }}
-  fetchData();
-  
   },[]);
   return (
     <div className="flex justify-between items-center px-5 py-2 z-1000 border-b border-gray-800 bg-[#0b0b0b]/80 backdrop-blur-md">
@@ -134,24 +146,41 @@ export default function TopNavbar({
               </div>
 
               <div className="p-1.5 space-y-0.5">
-                {/* Host User */}
-                <div className="flex items-center justify-between px-2.5 py-2 text-sm text-zinc-200 hover:bg-zinc-800/60 rounded-md cursor-pointer transition-colors">
-                  <span className="truncate font-medium">{users.createdBy.userName}</span>
-                  <span className="text-[10px] font-semibold bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">
-                    Host
-                  </span>
-                </div>
+               
 
-                {users.participants
-                  .filter((user: any) => user._id !== users.createdBy._id)
-                  .map((user: any) => (
-                    <div
-                      key={user._id}
-                      className="px-2.5 py-2 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 rounded-md cursor-pointer transition-colors truncate"
-                    >
-                      {user.userName}
-                    </div>
-                  ))}
+                {users.map((user: any) => (
+  <div
+  key={user._id}
+  className="px-2.5 py-2 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 rounded-md cursor-pointer transition-colors flex items-center justify-between"
+>
+  <span className="truncate max-w-[90px]">
+    {user.userName}
+  </span>
+
+  <div className="flex items-center gap-1.5 ml-2">
+    {user.userName === userDetails.userName && (
+      <span className="text-[10px] font-semibold bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/20">
+        You
+      </span>
+    )}
+
+    {user.isOwner && (
+      <span className="text-[10px] font-semibold bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">
+        Host
+      </span>
+    )}
+
+    {owner && !user.isOwner && (
+      <button
+        className="text-[10px] font-semibold bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer"
+        onClick={()=>kick(user._id)}
+      >
+        Kick
+      </button>
+    )}
+  </div>
+</div>
+))}
               </div>
             </div>
           )}

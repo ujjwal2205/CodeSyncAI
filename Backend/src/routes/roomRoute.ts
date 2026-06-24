@@ -1,7 +1,7 @@
 import express from "express";
 import createRoomController from "../controllers/createRoomController";
 import joinRoomController from "../controllers/joinRoomController";
-import leaveRoomController from "../controllers/leaveRoomController";
+import {kickController,leaveRoomController} from "../controllers/leaveRoomController";
 import codeChangeController from "../controllers/codeChangeController";
 import usersInRoom from "../controllers/usersInRoom";
 import {getLanguage,languageChangeController} from "../controllers/languageChangeController";
@@ -16,4 +16,5 @@ roomRoute.post("/users",authMiddleware,usersInRoom);
 roomRoute.post("/language-change",authMiddleware,languageChangeController);
 roomRoute.post("/get-code",authMiddleware,getCodeController);
 roomRoute.post("/get-language",authMiddleware,getLanguage);
+roomRoute.post("/kick",authMiddleware,kickController);
 export default roomRoute;

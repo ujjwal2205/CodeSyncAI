@@ -5,7 +5,7 @@ import { useStore } from "@/context/StoreContext";
 import axios from "axios";
 import {toast} from "react-toastify";
 export default function ChatPanel({roomId,code}:any) {
-  const {url,userDetails}=useStore();
+  const {url,userDetails,socket}=useStore();
   const [activeTab, setActiveTab] = useState<"chat" | "ai">("chat");
   const [groupMessages,setGroupMessages]=useState<any[]>([]);
   const [aiLoading,setAiLoading] = useState<boolean>(false);
@@ -61,6 +61,34 @@ useEffect(()=>{
   useEffect(()=>{
   scrollToBottom(true);
 },[groupMessages, aiMessages, aiLoading, activeTab]);
+useEffect(()=>{
+ socket.on("receiveGroupMessage",(data:any)=>{
+ setGroupMessages((prev)=>[
+  ...prev,
+  data
+ ]);
+ })
+ socket.on("receiveUserMessage",(data:any)=>{
+  setAIMessages((prev)=>[
+    ...prev,
+    data
+  ]);
+  setAiLoading(true);
+})
+socket.on("receiveAiMessage",(data:any)=>{
+  setAIMessages((prev)=>[
+    ...prev,
+    data
+  ]);
+  setAiLoading(false);
+})
+return ()=>{
+  socket.off("receiveGroupMessage");
+  socket.off("receiveUserMessage");
+  socket.off("receiveAiMessage");
+}
+
+},[])
   const addGroupMessage=async(message:string)=>{
    try {
     const res=await axios.post(url+"/api/chat/addMessagesGroup",{roomId,message},{withCredentials:true});
@@ -74,6 +102,7 @@ useEffect(()=>{
         userName:userDetails.userName
       }
    }]);
+   socket.emit("sendGroupMessage",{roomId,message});
    setGroupMessage("");
    } catch (error:any) {
     console.log(error);
@@ -84,23 +113,15 @@ useEffect(()=>{
     if(!message.trim()) return;
    try {
      setAiMessage("");
-     setAIMessages(prev=>[...prev,{
-       message,
-       senderId:{
-         userName:userDetails.userName
-       },
-       role:"user"
-    }]);
+     
     setAiLoading(true);
     const res=await axios.post(url+"/api/chat/addMessagesAI",{roomId,message},{withCredentials:true});
     if(!res.data.success){
-    toast.error(res.data.message);
-    return;
+      toast.error(res.data.message);
+      console.log(res.data.message);
+      return;
     }
-   setAIMessages(prev=>[...prev,{
-      message:res.data.aiReply,
-      role:"assistant"
-   }]);
+   
    } catch (error:any) {
     console.log(error);
     toast.error(error.message);
