@@ -15,7 +15,7 @@ connectDB();
 const port=4000;
 const app=express();
 app.use(cors({
-    origin:"http://localhost:3000",
+    origin:"https://codesyncai-frontend.onrender.com",
     credentials:true,
 }));
 app.use(cookieParser());
@@ -28,7 +28,7 @@ app.use("/api/chat",chatRoute);
 const server=http.createServer(app);
 const io=new Server(server,{
     cors:{
-        origin:"http://localhost:3000",
+        origin:"https://codesyncai-frontend.onrender.com",
         credentials:true
     }
 })
