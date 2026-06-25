@@ -19,7 +19,7 @@ type StoreContextType={
 };
 const StoreContext=createContext<StoreContextType|null>(null);
 export function StoreProvider({children}:{children:React.ReactNode}){
-    const url="http://localhost:4000";
+    const url="https://codesyncai-backend.onrender.com";
     const socketRef = useRef<any>(null);
 
 if (!socketRef.current) {
