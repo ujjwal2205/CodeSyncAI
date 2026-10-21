@@ -40,10 +40,10 @@ const signUp=async(req:any,res:any)=>{
         });
         const token=createToken(newUser);
         res.cookie("token",token,{
-            httpOnly:true,
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            secure:process.env.NODE_ENV==="production",
-            maxAge:7*24*60*60*1000
+            httpOnly:true, //JS cookie ko access nhi kar skta
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", //lax:same site se request par hi cookie available hoga, none: kisi bhi site se request par cookie available hoga(ye tab use karte hai jab frontend and backend dono alag domain par ho), strict: same site se hi request par cookie available hoga(ismein agar user kisi dusre site se aata hai to cookie available nhi hoga(e.g google se website search karke aata hai.))
+            secure:process.env.NODE_ENV==="production",  //https(secure:true) mein hi cookie set hoga
+            maxAge:7*24*60*60*1000 //milisecond mein 7 days 
         });
         res.status(201).json({success:true,message:"Login Successful!",token});
     } catch (error:any) {
@@ -63,7 +63,7 @@ const logIn=async(req:any,res:any)=>{
         if(user.authType!=="local"){
             return res.status(400).json({success:false,message:`Please log in with ${user.authType}`});
         }
-        const isMatch=await bcrypt.compare(password,user.password);
+        const isMatch=await bcrypt.compare(password,user.password);  //bcrypt hashedPassword se salt or cost leke user.password ko usmein convert karta hai fir compare karta hai.
         if(!isMatch){
             return res.status(400).json({success:false,message:"Invalid credentials"});
         }

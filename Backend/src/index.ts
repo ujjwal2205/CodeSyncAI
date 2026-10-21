@@ -14,9 +14,13 @@ dotenv.config();
 connectDB();
 const port=4000;
 const app=express();
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://codesyncai-frontend.onrender.com"
+];
 app.use(cors({
-    origin:"https://codesyncai-frontend.onrender.com",
-    credentials:true,
+    origin: allowedOrigins,
+    credentials: true
 }));
 app.use(cookieParser());
 app.use(express.json());
@@ -28,8 +32,8 @@ app.use("/api/chat",chatRoute);
 const server=http.createServer(app);
 const io=new Server(server,{
     cors:{
-        origin:"https://codesyncai-frontend.onrender.com",
-        credentials:true
+        origin: allowedOrigins,
+        credentials: true
     }
 })
 initSocket(io);

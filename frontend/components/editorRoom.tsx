@@ -203,14 +203,14 @@ const [showPreferences, setShowPreferences] = useState(false);
     const container = containerRef.current;
     if (!container) return;
 
-    const rect = container.getBoundingClientRect();
+    const rect = container.getBoundingClientRect();   // Container ki position aur size bta dega
 
     const onMouseMove = (e: MouseEvent) => {
-      const offsetX = e.clientX - rect.left;
+      const offsetX = e.clientX - rect.left;      // Mouse ka x coordinate
       const totalWidth = rect.width;
 
       if (type === "left") {
-        const newLeft = (offsetX / totalWidth) * 100;
+        const newLeft = (offsetX / totalWidth) * 100;    // percentage of left panel width
 
         if (newLeft > 20 && newLeft < 70) {
           setLeftWidth(newLeft);

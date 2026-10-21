@@ -2,7 +2,7 @@ import roomModel from "../models/room";
 async function codeChangeController(req:any,res:any){
     const {roomId,code}=req.body;
    try{
-    const room=await roomModel.findOneAndUpdate({roomId},{code},{new:true});
+    const room=await roomModel.findOneAndUpdate({roomId},{code},{new:true}); //new to return the updated document
     if(!room){
         return res.json({success:false,message:"Room not found"});
     }
