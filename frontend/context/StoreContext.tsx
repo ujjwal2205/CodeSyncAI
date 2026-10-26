@@ -70,7 +70,7 @@ const socket = socketRef.current;
             }
         };
         fetchUserDetails();
-    }, []);
+    }, [isLoggedIn]);
     return(
         <StoreContext.Provider value={{isLoggedIn,setIsLoggedIn,openLogin,setOpenLogin,openSignup,setOpenSignup,url,userDetails,openForgotPassword,setOpenForgotPassword,socket}}>
             {children}

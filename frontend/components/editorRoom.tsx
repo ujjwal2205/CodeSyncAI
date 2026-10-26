@@ -39,16 +39,24 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [editorLocked,setEditorLocked]=useState<boolean>(false);
   useEffect(()=>{
     if (!roomId || !userDetails.userName || !userDetails.userId) return;
-    if (!socket.connected) {
+    const isOwner = localStorage.getItem("isOwner") === "true";
+    const joinRoom = () => {
+      socket.emit("joinRoom",{
+        roomId,
+        userName: userDetails.userName,
+        isOwner,
+        userId: userDetails.userId,
+      });
+    };
+    socket.on("connect", joinRoom);
+    if (socket.connected) {
+      joinRoom();
+    } else {
       socket.connect();
     }
-    const isOwner = localStorage.getItem("isOwner") === "true";
-    socket.emit("joinRoom",{
-      roomId,
-      userName: userDetails.userName,
-      isOwner,
-      userId: userDetails.userId,
-    });
+    return () => {
+      socket.off("connect", joinRoom);
+    };
   }, [roomId, userDetails.userName, userDetails.userId, socket]);
   useEffect(() => {
     if (!monaco) return;
