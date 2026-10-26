@@ -28,8 +28,8 @@ export const getRoomUsers=(roomId:string)=>{
         
         return{
             socketId,
-            userName:user?.userName || "Anonymous",
-            isOwner:socketId===ownerSocket,
+            userName: user?.userName ?? "",
+            isOwner: socketId===ownerSocket,
             _id:user?.userId
         }
     })

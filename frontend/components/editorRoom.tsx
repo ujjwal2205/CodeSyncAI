@@ -38,18 +38,18 @@ const [showPreferences, setShowPreferences] = useState(false);
   const [typingUser,setTypingUser]=useState<string>("");
   const [editorLocked,setEditorLocked]=useState<boolean>(false);
   useEffect(()=>{
-     if (!socket.connected) {
-    socket.connect();
-  }
+    if (!roomId || !userDetails.userName || !userDetails.userId) return;
+    if (!socket.connected) {
+      socket.connect();
+    }
     const isOwner = localStorage.getItem("isOwner") === "true";
     socket.emit("joinRoom",{
       roomId,
-      userName:userDetails.userName,
+      userName: userDetails.userName,
       isOwner,
-      userId:userDetails.userId,
-    })
-   
-  },[roomId]);
+      userId: userDetails.userId,
+    });
+  }, [roomId, userDetails.userName, userDetails.userId, socket]);
   useEffect(() => {
     if (!monaco) return;
     const loadTheme = async (themeName: string) => {

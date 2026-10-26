@@ -1,0 +1,25 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const createRoomController_1 = __importDefault(require("../controllers/createRoomController"));
+const joinRoomController_1 = __importDefault(require("../controllers/joinRoomController"));
+const leaveRoomController_1 = require("../controllers/leaveRoomController");
+const codeChangeController_1 = __importDefault(require("../controllers/codeChangeController"));
+const usersInRoom_1 = __importDefault(require("../controllers/usersInRoom"));
+const languageChangeController_1 = require("../controllers/languageChangeController");
+const getCodeController_1 = __importDefault(require("../controllers/getCodeController"));
+const authMiddleware_1 = __importDefault(require("../middleware/authMiddleware"));
+const roomRoute = express_1.default.Router();
+roomRoute.post("/create", authMiddleware_1.default, createRoomController_1.default);
+roomRoute.post("/join", authMiddleware_1.default, joinRoomController_1.default);
+roomRoute.post("/leave", authMiddleware_1.default, leaveRoomController_1.leaveRoomController);
+roomRoute.post("/code-change", authMiddleware_1.default, codeChangeController_1.default);
+roomRoute.post("/users", authMiddleware_1.default, usersInRoom_1.default);
+roomRoute.post("/language-change", authMiddleware_1.default, languageChangeController_1.languageChangeController);
+roomRoute.post("/get-code", authMiddleware_1.default, getCodeController_1.default);
+roomRoute.post("/get-language", authMiddleware_1.default, languageChangeController_1.getLanguage);
+roomRoute.post("/kick", authMiddleware_1.default, leaveRoomController_1.kickController);
+exports.default = roomRoute;

@@ -1,15 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.closeRoom = exports.getRoomSetting = exports.setRoomSettings = exports.getRoomOwner = exports.setRoomOwner = exports.roomExists = exports.getRoomUsers = exports.removeFromRoom = exports.addToRoom = void 0;
+exports.releaseEditorLock = exports.acquireEditorLock = exports.closeRoom = exports.getRoomOwner = exports.setRoomOwner = exports.roomExists = exports.getRoomUsers = exports.removeFromRoom = exports.addToRoom = void 0;
 const userManager_1 = require("./userManager");
 const rooms = new Map();
 const roomOwners = new Map();
-const roomSettings = new Map();
+const roomEditorLock = new Map();
 const addToRoom = (socketId, roomId) => {
     if (!rooms.has(roomId)) {
         rooms.set(roomId, new Set());
     }
     rooms.get(roomId).add(socketId);
+    console.log(rooms);
 };
 exports.addToRoom = addToRoom;
 const removeFromRoom = (socketId, roomId) => {
@@ -21,15 +22,20 @@ const removeFromRoom = (socketId, roomId) => {
     if (room.size === 0) {
         rooms.delete(roomId);
     }
+    console.log(rooms);
 };
 exports.removeFromRoom = removeFromRoom;
 const getRoomUsers = (roomId) => {
     const roomUsers = Array.from(rooms.get(roomId) || []);
     return roomUsers.map((socketId) => {
+        var _a;
         const user = (0, userManager_1.getUser)(socketId);
+        const ownerSocket = roomOwners.get(roomId);
         return {
             socketId,
-            userName: (user === null || user === void 0 ? void 0 : user.userName) || "Anonymous"
+            userName: (_a = user === null || user === void 0 ? void 0 : user.userName) !== null && _a !== void 0 ? _a : "",
+            isOwner: socketId === ownerSocket,
+            _id: user === null || user === void 0 ? void 0 : user.userId
         };
     });
 };
@@ -51,17 +57,23 @@ const getRoomOwner = (roomId) => {
     return roomOwners.get(roomId);
 };
 exports.getRoomOwner = getRoomOwner;
-const setRoomSettings = (roomId, requireApproval) => {
-    roomSettings.set(roomId, { requireApproval });
-};
-exports.setRoomSettings = setRoomSettings;
-const getRoomSetting = (roomId) => {
-    return roomSettings.get(roomId);
-};
-exports.getRoomSetting = getRoomSetting;
 const closeRoom = (roomId) => {
     rooms.delete(roomId);
     roomOwners.delete(roomId);
-    roomSettings.delete(roomId);
 };
 exports.closeRoom = closeRoom;
+const acquireEditorLock = (roomId, socketId) => {
+    const currentUser = roomEditorLock.get(roomId);
+    if (currentUser && currentUser !== socketId) {
+        return false;
+    }
+    roomEditorLock.set(roomId, socketId);
+    return true;
+};
+exports.acquireEditorLock = acquireEditorLock;
+const releaseEditorLock = (roomId, socketId) => {
+    if (roomEditorLock.get(roomId) === socketId) {
+        roomEditorLock.delete(roomId);
+    }
+};
+exports.releaseEditorLock = releaseEditorLock;

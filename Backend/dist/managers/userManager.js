@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUser = exports.getUserRoom = exports.getAllOnlineUsers = exports.removeUser = exports.addUser = void 0;
+exports.getSocketIdByUserId = exports.getUser = exports.getUserRoom = exports.getAllOnlineUsers = exports.removeUser = exports.addUser = void 0;
 const onlineUsers = new Map();
-const addUser = (socketId, roomId, userName) => {
-    onlineUsers.set(socketId, { userName, roomId });
+const addUser = (socketId, roomId, userName, userId) => {
+    onlineUsers.set(socketId, { userName, roomId, userId });
 };
 exports.addUser = addUser;
 const removeUser = (socketId) => {
@@ -26,3 +26,12 @@ const getUser = (socketId) => {
     return onlineUsers.get(socketId);
 };
 exports.getUser = getUser;
+const getSocketIdByUserId = (userId) => {
+    for (const [socketId, user] of onlineUsers.entries()) {
+        if (user.userId === userId) {
+            return socketId;
+        }
+    }
+    return null;
+};
+exports.getSocketIdByUserId = getSocketIdByUserId;
